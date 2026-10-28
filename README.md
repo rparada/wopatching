@@ -83,7 +83,7 @@ For each of the 23 files with diverging content, we used a consistent investigat
 1. Grep both versions for `^import er\.` — an upward dependency on a higher-level Wonder framework class (`er.extensions.*`, `er.directtoweb.*`) from a low-level foundation/webobjects-layer patch class is an architectural smell: these patch classes are meant to be loadable standalone, underneath Wonder, not dependent on it.
 2. Raw `diff`, then `diff -w -B` (ignoring whitespace/blank lines) to isolate the substantive differences from cosmetic ones.
 3. For files with large diffs, extracted and compared method-signature sets to quickly spot added/removed/changed methods.
-4. Where needed, inspected the **real commercial `.class` files** (`javap -c -p`) from the actual `com.webobjects:*:5.4.3` jars to confirm claims like "this class depends on a deprecated/internal API in the original," and searched the `ehcm` application's `main` branch for real-world call-site usage to gauge risk before deciding.
+4. Where needed, inspected the **real commercial `.class` files** (`javap -c -p`) from the actual `com.webobjects:*:5.4.3` jars to confirm claims like "this class depends on a deprecated/internal API in the original," and searched `main` branch in our code base for real-world call-site usage to gauge risk before deciding.
 
 ### Disqualifying patterns we relied on
 
@@ -92,7 +92,7 @@ Across the 23 files, these patterns recurred and became our decision criteria (r
 * **Upward imports** — a foundation/webobjects-layer class importing `er.extensions.*` or `er.directtoweb.*`. Disqualifies that version from being a standalone, classpath-shadowing patch class.
 * **Unnecessary third-party dependencies** introduced in low-level patch classes that have no business needing them — e.g. `org.slf4j.Logger` instead of the classic `com.webobjects.foundation.NSLog`, or `org.apache.commons.lang3.CharEncoding` instead of `java.nio.charset.StandardCharsets`.
 * **Sideways package dependencies** — e.g. `com.webobjects.eoaccess.EOAttribute` throwing `com.webobjects.jdbcadaptor.JDBCAdaptorException` instead of the adaptor-agnostic `com.webobjects.eoaccess.EOGeneralAdaptorException` (confirmed by checking which package each exception class actually lives in).
-* **Dead/stub code** — e.g. wonder's `EOAttribute.setChangeNotificationOptions(...)`/`changeNotificationOptions()` turned out to be no-op stubs referencing a class that doesn't correspond to any real WebObjects 5.4.3 jar class, and confirmed unused by our `ehcm` code base. Safe to drop.
+* **Dead/stub code** — e.g. wonder's `EOAttribute.setChangeNotificationOptions(...)`/`changeNotificationOptions()` turned out to be no-op stubs referencing a class that doesn't correspond to any real WebObjects 5.4.3 jar class, and confirmed unused by our code base. Safe to drop.
 * **False alarms** — several diffs looked substantive but were confirmed logically/behaviorally equivalent on inspection (e.g. `if/else` vs. two sequential `if` returns, `Integer.parseInt` vs. `Integer.valueOf` immediately unboxed). These were not treated as a reason to prefer one side.
 
 ### Decisions for the 23 "different" files
@@ -100,7 +100,7 @@ Across the 23 files, these patterns recurred and became our decision criteria (r
 | Module | File | Chosen source | Why |
 | --- | --- | --- | --- |
 | foundation-patches | `NSArray.java` | wopatches | wonder's version carries an upward dependency pattern similar to `ERXKey`/enhancement style changes not needed for a standalone patch class |
-| foundation-patches | `NSDictionary.java` | wonder | Null-handling difference confirmed to pose zero real-world risk in `ehcm` (zero call sites use the affected 2-arg `(Map, boolean)` constructor) |
+| foundation-patches | `NSDictionary.java` | wonder | Null-handling difference confirmed to pose zero real-world risk in our code base (zero call sites use the affected 2-arg `(Map, boolean)` constructor) |
 | foundation-patches | `NSMutableArray.java` | wonder | `wopatches` diff was logically redundant but behaviorally identical (`else` vs `else if (!identical)`) — no reason to deviate from wonder |
 | foundation-patches | `NSMutableSet.java` | wonder | Diff confirmed equivalent (`(removeObject(o) != null) == true` vs. equivalent ternary) |
 | foundation-patches | `NSMutableDictionary.java` | wonder | No substantive difference found favoring `wopatches` |
