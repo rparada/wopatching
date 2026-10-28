@@ -1,0 +1,24 @@
+build:
+  type: java
+  java_version: openjdk21
+  # No pom.xml at the repo root. Both reactors are 7.3.11; publish tracks wopatched.
+  versioning: maven
+  version_file: wopatched/pom.xml
+  script:
+    # wopatched resolves wopatches7 from the local repo, not from this reactor.
+    - mvn -f wopatches7/pom.xml clean install
+    # Sibling wopatched modules are one reactor, and shade runs in package.
+    # Tim publishes the jars from each module's target/, so install is not needed.
+    - mvn -f wopatched/pom.xml clean package
+artifacts:
+  maven_packages:
+    # packaging=pom, so Tim publishes the POM only. Required: every jar POM has this parent.
+    - path: "wopatched"
+    # packaging=jar, so Tim publishes the POM and the shaded jar.
+    - path: "wopatched/wonder-foundation"
+    - path: "wopatched/wonder-eocontrol"
+    - path: "wopatched/wonder-eoaccess"
+    - path: "wopatched/wonder-jdbcadaptor"
+    - path: "wopatched/wonder-webobjects"
+    - path: "wopatched/wonder-wojspservlet"
+    - path: "wopatched/wonder-directtoweb"
