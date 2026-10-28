@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>wopatched</groupId>
+		<artifactId>wopatched</artifactId>
+		<version>7.3.11</version>
+	</parent>
+	<artifactId>wonder-directtoweb</artifactId>
+	<packaging>jar</packaging>
+
+	<name>WebObjects Patched - DirectToWeb</name>
+	<description>Drop-in replacement for com.webobjects:JavaDirectToWeb:5.4.3. Shade-merges the original jar with wopatches7:directtoweb-patches (which overrides D2WPage and adds ERD2WContext/ERD2WUtilities, neither of which has a real commercial counterpart), with an explicit filter excluding the overridden class from the original jar. com.webobjects:JavaEOProject and JavaDTWGeneration are kept as plain pass-through runtime dependencies (not shaded, no patches exist for those layers), mirroring JavaDirectToWeb's own declared dependencies.</description>
+
+	<!-- JavaDirectToWeb and directtoweb-patches are fully shade-merged into this jar's output
+	     (see artifactSet/includes below), so they are marked optional=true to avoid leaking the
+	     original com.webobjects:JavaDirectToWeb jar transitively to consumers (which would
+	     otherwise race against this self-contained jar for the same com.webobjects.directtoweb.*
+	     class names). JavaEOProject/JavaDTWGeneration are deliberate plain pass-through runtime
+	     dependencies (not shaded in, no patches exist for those layers), so they stay at compile
+	     scope, as do foundation/eocontrol/eoaccess/webobjects. -->
+	<dependencies>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaDirectToWeb</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaEOProject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaDTWGeneration</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>directtoweb-patches</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-foundation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-eocontrol</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-eoaccess</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-webobjects</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<artifactSet>
+								<includes>
+									<include>com.webobjects:JavaDirectToWeb</include>
+									<include>wopatches7:directtoweb-patches</include>
+								</includes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.webobjects:JavaDirectToWeb</artifact>
+									<excludes>
+										<exclude>META-INF/INDEX.LIST</exclude>
+										<exclude>com/webobjects/directtoweb/D2WPage.class</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

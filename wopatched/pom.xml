@@ -1,0 +1,149 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>wopatched</groupId>
+	<artifactId>wopatched</artifactId>
+	<version>7.3.11</version>
+	<packaging>pom</packaging>
+
+	<name>WebObjects Patched for Wonder 7.3</name>
+	<description>Drop-in replacements for the core WebObjects SDK jars, produced by shade-merging the original com.webobjects:* 5.4.3 jars with wopatches7's override classes (and, for foundation/webobjects, the wonder.core:ERFoundation/ERWebObjects binary jars). No JPMS, no module-info - plain classpath override via maven-shade-plugin with explicit filters for deterministic precedence. This is the non-JPMS equivalent of womodular.</description>
+
+	<licenses>
+		<license>
+			<name>NetStruxr Public Software License</name>
+			<url>https://github.com/wocommunity/wonder/blob/master/Frameworks/Core/ERExtensions/Documentation/LICENSE.NPL</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Ricardo Parada</name>
+			<email>rparada@mac.com</email>
+		</developer>
+	</developers>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<wopatches7.version>7.3.11</wopatches7.version>
+	</properties>
+
+	<modules>
+		<module>wonder-foundation</module>
+		<module>wonder-eocontrol</module>
+		<module>wonder-eoaccess</module>
+		<module>wonder-jdbcadaptor</module>
+		<module>wonder-webobjects</module>
+		<module>wonder-wojspservlet</module>
+		<module>wonder-directtoweb</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Original commercial WebObjects 5.4.3 SDK jars being overridden/merged -->
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaFoundation</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOAccess</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOControl</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOProject</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaJDBCAdaptor</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaWOJSPServlet</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaWebObjects</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaDTWGeneration</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaDirectToWeb</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<!-- Binary-only override jars for the NSBundle/WOBundle subsystem -->
+			<dependency>
+				<groupId>wonder.core</groupId>
+				<artifactId>ERFoundation</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>wonder.core</groupId>
+				<artifactId>ERWebObjects</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<!-- wopatches7 override-class jars, one per layer -->
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>foundation-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>eocontrol-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>eoaccess-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>jdbcadaptor-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>webobjects-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>wojspservlet-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>wopatches7</groupId>
+				<artifactId>directtoweb-patches</artifactId>
+				<version>${wopatches7.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>3.6.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

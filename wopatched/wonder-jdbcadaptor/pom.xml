@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>wopatched</groupId>
+		<artifactId>wopatched</artifactId>
+		<version>7.3.11</version>
+	</parent>
+	<artifactId>wonder-jdbcadaptor</artifactId>
+	<packaging>jar</packaging>
+
+	<name>WebObjects Patched - JDBCAdaptor</name>
+	<description>Drop-in replacement for com.webobjects:JavaJDBCAdaptor:5.4.3. Shade-merges the original jar with wopatches7:jdbcadaptor-patches, which is purely additive here (ERXConstant, ERXEnhancedJDBCColumn, ERXJDBCColumn have no overlapping class names with the original jar, so no exclude filter is needed on JavaJDBCAdaptor beyond the stale jar index). Depends on the patched "wonder-foundation", "wonder-eocontrol" and "wonder-eoaccess" artifacts at runtime, mirroring JavaJDBCAdaptor's own dependency on JavaEOAccess.</description>
+
+	<!-- JavaJDBCAdaptor and jdbcadaptor-patches are fully shade-merged into this jar's output
+	     (see artifactSet/includes below), so they are marked optional=true to avoid leaking the
+	     original com.webobjects:JavaJDBCAdaptor jar transitively to consumers (which would
+	     otherwise race against this self-contained jar for the same
+	     com.webobjects.jdbcadaptor.* class names). foundation/eocontrol/eoaccess are genuine
+	     runtime dependencies (not shaded in), so they stay at compile scope. -->
+	<dependencies>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaJDBCAdaptor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>jdbcadaptor-patches</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-foundation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-eocontrol</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-eoaccess</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<artifactSet>
+								<includes>
+									<include>com.webobjects:JavaJDBCAdaptor</include>
+									<include>wopatches7:jdbcadaptor-patches</include>
+								</includes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.webobjects:JavaJDBCAdaptor</artifact>
+									<excludes>
+										<exclude>META-INF/INDEX.LIST</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

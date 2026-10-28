@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>wopatches7</groupId>
+	<artifactId>wopatches7</artifactId>
+	<version>7.3.11</version>
+	<packaging>pom</packaging>
+
+	<name>WebObjects Patches for Wonder 7.3</name>
+	<description>Patched classes for the core WebObjects dependencies, reconciled from Project Wonder and the WOCommunity wopatches project, for use as a non-JPMS classpath override (see wopatched).</description>
+
+	<licenses>
+		<license>
+			<name>NetStruxr Public Software License</name>
+			<url>https://github.com/wocommunity/wonder/blob/master/Frameworks/Core/ERExtensions/Documentation/LICENSE.NPL</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Ricardo Parada</name>
+			<email>rparada@mac.com</email>
+		</developer>
+	</developers>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<modules>
+		<module>foundation-patches</module>
+		<module>eoaccess-patches</module>
+		<module>eocontrol-patches</module>
+		<module>jdbcadaptor-patches</module>
+		<module>webobjects-patches</module>
+		<module>wojspservlet-patches</module>
+		<module>directtoweb-patches</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaFoundation</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOAccess</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOControl</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaEOProject</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaJDBCAdaptor</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaXML</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaWOJSPServlet</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaWebObjects</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaDTWGeneration</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.webobjects</groupId>
+				<artifactId>JavaDirectToWeb</artifactId>
+				<version>5.4.3</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
