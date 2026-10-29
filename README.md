@@ -53,7 +53,11 @@ An exhaustive scan was run of all 315 classes in `JavaWebObjects.jar` for refere
 * 3 (`WOXMLCoder`, `WOXMLDecoder`, `WOCGIFormValues$Encoder`) were already neutralized by the `webobjects-patches` module (which replaced their Xerces-specific `Base64` usage with `java.util.Base64`), and
 * the remaining 12 were the dead legacy Axis-based `WOWebService`/WSDD/RPC direct-action subsystem — confirmed unused in practice (Wonder's own `WOWebServicePatch.initServer()` call is a no-op unless a `server.wsdd` resource exists, which none of our apps ship).
 
-This matches the precedent already set by `wonder-modular-webobjects`. The `JavaXML` dependency was dropped entirely from `wopatched`'s `wonder-webobjects` module, excluded those 12 dead classes from the shade merge, and removed `WOWebServicePatch.java` and its `ERXApplication` call site from `wonder-7.3.11` to match (commit `a745f3a`, "Drop com.webobjects:JavaXML dependency entirely").
+This matches the precedent already set by `wonder-modular-webobjects`.
+
+* `wopatched` removed the `com.webobjects:JavaXML` dependency from the parent `dependencyManagement`, from `wonder-webobjects`, and from `wonder-wojspservlet`. `wonder-wojspservlet` needed nothing further: a scan of all 13 classes in `JavaWOJSPServlet` found no reference to a JavaXML-only package. `wonder-webobjects` excludes the dead Axis-based `WOWebService`/`WSDD`/`RPC` classes from the shade merge, since no patched replacement exists. The filter matches `wonder-modular-webobjects` for `_WODocumentType`, `_WOMessageHelper`, `WOWSDDRegistrar`, `WOWSDDRegistrar$Delegate`, `WOWebServiceRegistrar`, `WOWebServiceUtilities`, `WOAxisSession`, `WOComponentSerializer`, `WOComponentSerializerFactory`, `WORPCProvider`, `WOServerSessionHandler`, `WOWebService`, and `WOWebService$NullTransformer`. `WOWebServiceRequestHandler` stays in the jar because `WOApplication._registerRequestHandlers()` names that type in bytecode. The same filter also drops the stray root-package `KeyValueCodingProtectedAccessor.class`; `webobjects-patches` supplies the correctly packaged copy.
+* `wonder-7.3.11` commit `c75b206de` ("Remove WOWebServicePatch (legacy Axis-based SOAP webservices support)") on `feature/wonder-7.3.11` removed `WOWebServicePatch.java` and its `ERXApplication.initFinish()` call site. That commit is in the Wonder repository.
+* `wonder-directtoweb`'s plain pass-through dependencies on `com.webobjects:JavaEOProject`/`JavaDTWGeneration` (see the module table in Status below) were silently reintroducing the raw, unpatched `JavaWebObjects` → `JavaXML`/`JavaEOControl` and `JavaEOAccess` → `JavaFoundation` chain transitively, since those two pass-through artifacts' own published poms declare that chain and — unlike every other `wopatched` module's own shaded jar — were not marked `optional`. Fixed with explicit `<exclusions>` on both, so only the already-patched sibling `wopatched` modules supply those classes.
 
 ## Similar to Wonder 8 and womodular
 
@@ -168,11 +172,13 @@ This is why the 16-file NSBundle redesign cluster in `wopatches` is excluded (it
 
 ## Status
 
-**Both `wopatches7` and `wopatched` are written, built, and committed — and `com.webobjects:JavaXML` has since been dropped entirely (see above).**
+**Both `wopatches7` and `wopatched` are written and built in this repository, and `com.webobjects:JavaXML` is dropped entirely (see above).**
 
-`wopatches7` (commit `30811bb`): all 59 original `wopatches` files triaged and reconciled (9 identical, 9 kept from `wopatches`, 14 kept from wonder, 3 relocated utilities, 8 standalone gap-fillers, 16 excluded). `mvn clean compile` succeeds, all 8 modules.
+The triage and the shade merge were first committed in the standalone repositories, then copied here by `bbd11fa`. Those earlier hashes are in the standalone repos, not in `wopatching`'s history.
 
-`wopatched` (commit `2bafcca`, updated by `a745f3a`): 7 modules, each a `maven-shade-plugin`-only merge producing a drop-in replacement for the corresponding `com.webobjects:*:5.4.3` jar:
+`wopatches7` (standalone commit `30811bb`): all 59 original `wopatches` files triaged and reconciled (9 identical, 9 kept from `wopatches`, 14 kept from wonder, 3 relocated utilities, 8 standalone gap-fillers, 16 excluded). `mvn clean compile` succeeds, all 8 modules.
+
+`wopatched` (standalone commit `2bafcca`, then `a745f3a`): 7 modules, each a `maven-shade-plugin`-only merge producing a drop-in replacement for the corresponding `com.webobjects:*:5.4.3` jar:
 
 | Module | Merges |
 | --- | --- |
@@ -186,6 +192,6 @@ This is why the 16-file NSBundle redesign cluster in `wopatches` is excluded (it
 
 Each module's `<artifactSet><includes>` is restricted to just that module's own layer, so sibling layers pulled in transitively for compilation (e.g. `foundation-patches` needed by `eocontrol-patches`) aren't redundantly re-merged into every jar. Instead, each `wopatched` module declares a normal (non-shaded) runtime dependency on its sibling `wopatched` modules, mirroring the real `JavaEOControl`→`JavaFoundation`-style dependency chain of the original SDK.
 
-Override precedence is made deterministic via explicit `<filters><excludes>` per module, computed from actual jar class-listing diffs (not guesswork) — e.g. the `foundation` module excludes 31 classes overridden by `foundation-patches` plus 18 classes overridden by `ERFoundation` from the original `JavaFoundation` jar. The stale `META-INF/INDEX.LIST` jar index is also stripped from every original jar. As described above, `com.webobjects:JavaXML` is no longer a dependency of the `webobjects` module at all — it was dropped entirely in commit `a745f3a`, with the 12 dead legacy webservices classes it made reachable excluded from the merge (one, `WOWebServiceRequestHandler`, is kept due to a hard bytecode-level reference from `WOApplication`).
+Override precedence is made deterministic via explicit `<filters><excludes>` per module, computed from actual jar class-listing diffs (not guesswork) — e.g. the `foundation` module excludes 31 classes overridden by `foundation-patches` plus 18 classes overridden by `ERFoundation` from the original `JavaFoundation` jar. The stale `META-INF/INDEX.LIST` jar index is also stripped from every original jar. As described above, `com.webobjects:JavaXML` is no longer a dependency of the `webobjects` module at all — it was dropped entirely in standalone `wopatched` commit `a745f3a`, with the 12 dead legacy webservices classes it made reachable excluded from the merge (one, `WOWebServiceRequestHandler`, is kept due to a hard bytecode-level reference from `WOApplication`).
 
 **Verification:** `mvn clean package` succeeds for both projects. Override precedence was confirmed via MD5 checksum comparison — for one representative overridden class per module (plus the `ERWebObjects`-vs-`JavaWebObjects` `WOBundle` case), the class inside the final merged jar byte-for-byte matches the overriding source (patches or `ERFoundation`/`ERWebObjects`) and differs from the original commercial class.
