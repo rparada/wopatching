@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>wopatched</groupId>
 		<artifactId>wopatched</artifactId>
-		<version>7.3.11</version>
+		<version>7.3.12</version>
 	</parent>
 	<artifactId>wonder-directtoweb</artifactId>
 	<packaging>jar</packaging>
@@ -24,13 +24,37 @@
 			<artifactId>JavaDirectToWeb</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- JavaEOProject and JavaDTWGeneration's own published poms transitively declare
+		     JavaWebObjects/JavaEOAccess (and, below those, JavaXML/JavaEOControl/JavaFoundation),
+		     i.e. the raw, unpatched commercial jars. Those are already supplied, patched, by the
+		     sibling wonder-foundation/eocontrol/eoaccess/webobjects dependencies declared below,
+		     so they must be excluded here to avoid putting both the patched and unpatched copies
+		     of the same classes on every consumer's classpath (which would reintroduce the exact
+		     classpath-ordering ambiguity wopatched exists to eliminate, and silently undo the
+		     JavaXML removal). -->
 		<dependency>
 			<groupId>com.webobjects</groupId>
 			<artifactId>JavaEOProject</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.webobjects</groupId>
+					<artifactId>JavaWebObjects</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.webobjects</groupId>
+					<artifactId>JavaEOAccess</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.webobjects</groupId>
 			<artifactId>JavaDTWGeneration</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.webobjects</groupId>
+					<artifactId>JavaWebObjects</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>wopatches7</groupId>
