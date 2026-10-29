@@ -1,0 +1,125 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>wopatched</groupId>
+		<artifactId>wopatched</artifactId>
+		<version>7.3.11</version>
+	</parent>
+	<artifactId>wonder-foundation</artifactId>
+	<packaging>jar</packaging>
+
+	<name>WebObjects Patched - Foundation</name>
+	<description>Drop-in replacement for com.webobjects:JavaFoundation:5.4.3. Shade-merges the original jar with wonder.core:ERFoundation (which overrides the NSBundle/resource-loading subsystem) and wopatches7:foundation-patches (which overrides NSArray/NSDictionary/NSMutableArray/NSMutableSet/NSMutableDictionary/_NSWeakMutableArray/NSSet/NSTimeZone/NSLog/NSPathUtilities/xml.NSXMLOutputFormat/xml.NSXMLOutputStream), with explicit filters excluding the overridden classes from the original jar so precedence is deterministic regardless of merge order.</description>
+
+	<!-- All three dependencies below are fully shade-merged into this jar's output (see
+	     artifactSet/includes below), so they are marked optional: needed to compile/shade
+	     this module, but must NOT leak transitively to consumers of wopatched:wonder-foundation,
+	     which would otherwise end up with both this self-contained jar AND the original
+	     com.webobjects:JavaFoundation jar on their classpath, racing for the same
+	     com.webobjects.foundation.* class names with non-deterministic precedence. -->
+	<dependencies>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaFoundation</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wonder.core</groupId>
+			<artifactId>ERFoundation</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>foundation-patches</artifactId>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<artifactSet>
+								<includes>
+									<include>com.webobjects:JavaFoundation</include>
+									<include>wonder.core:ERFoundation</include>
+									<include>wopatches7:foundation-patches</include>
+								</includes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.webobjects:JavaFoundation</artifact>
+									<excludes>
+										<!-- stale jar index from the original jar, meaningless once merged -->
+										<exclude>META-INF/INDEX.LIST</exclude>
+										<!-- overridden by wopatches7:foundation-patches -->
+										<exclude>com/webobjects/foundation/NSArray.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$Operator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_AvgNumberOperator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_CountOperator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_MaxOperator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_MinOperator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_Operator.class</exclude>
+										<exclude>com/webobjects/foundation/NSArray$_SumNumberOperator.class</exclude>
+										<exclude>com/webobjects/foundation/NSDictionary.class</exclude>
+										<exclude>com/webobjects/foundation/NSDictionary$_JavaNSDictionaryMapEntry.class</exclude>
+										<exclude>com/webobjects/foundation/NSMutableArray.class</exclude>
+										<exclude>com/webobjects/foundation/NSMutableDictionary.class</exclude>
+										<exclude>com/webobjects/foundation/NSMutableSet.class</exclude>
+										<exclude>com/webobjects/foundation/NSSet.class</exclude>
+										<exclude>com/webobjects/foundation/NSTimeZone.class</exclude>
+										<exclude>com/webobjects/foundation/NSTimeZone$__NSTZPeriod.class</exclude>
+										<exclude>com/webobjects/foundation/NSTimeZone$__NSTZPeriodComparator.class</exclude>
+										<exclude>com/webobjects/foundation/_NSWeakMutableArray.class</exclude>
+										<exclude>com/webobjects/foundation/NSLog.class</exclude>
+										<exclude>com/webobjects/foundation/NSLog$Logger.class</exclude>
+										<exclude>com/webobjects/foundation/NSLog$Log4JLogger.class</exclude>
+										<exclude>com/webobjects/foundation/NSLog$PrintStreamLogger.class</exclude>
+										<exclude>com/webobjects/foundation/NSLog$_DevNullPrintStream.class</exclude>
+										<exclude>com/webobjects/foundation/NSPathUtilities.class</exclude>
+										<exclude>com/webobjects/foundation/SubList.class</exclude>
+										<exclude>com/webobjects/foundation/SubList$1.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputFormat.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputStream.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputStream$DOMRecursiveInfo.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputStream$OverriddenMtdsRecursiveInfo.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputStream$_LightweightObjectIntMap.class</exclude>
+										<exclude>com/webobjects/foundation/xml/NSXMLOutputStream$_LightweightReplaceMap.class</exclude>
+										<!-- overridden by wonder.core:ERFoundation (NSBundle/resource-loading subsystem) -->
+										<exclude>com/webobjects/foundation/NSBundle.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$1.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$DirectoryFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$FilesFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$OldResourceFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$ResourceDirectoryFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$ResourceFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSBundle$SpecificResourceFilter.class</exclude>
+										<exclude>com/webobjects/foundation/NSForwardException.class</exclude>
+										<exclude>com/webobjects/foundation/NSProperties.class</exclude>
+										<exclude>com/webobjects/foundation/_NSStringUtilities.class</exclude>
+										<exclude>com/webobjects/foundation/_NSStringUtilities$_PatternAnalyzer.class</exclude>
+										<exclude>com/webobjects/foundation/_NSStringUtilities$_StringAnalyzer.class</exclude>
+										<exclude>com/webobjects/foundation/_NSUtilities.class</exclude>
+										<exclude>com/webobjects/foundation/_NSUtilities$JavaArchiveFilter.class</exclude>
+										<exclude>com/webobjects/foundation/_NSUtilities$JavaClassFilter.class</exclude>
+										<exclude>com/webobjects/foundation/_NSUtilities$_NoClassUnderTheSun.class</exclude>
+										<exclude>com/webobjects/foundation/_NSUtilities$_ResourceSearcher.class</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

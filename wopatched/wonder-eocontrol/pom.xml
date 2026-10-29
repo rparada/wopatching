@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>wopatched</groupId>
+		<artifactId>wopatched</artifactId>
+		<version>7.3.11</version>
+	</parent>
+	<artifactId>wonder-eocontrol</artifactId>
+	<packaging>jar</packaging>
+
+	<name>WebObjects Patched - EOControl</name>
+	<description>Drop-in replacement for com.webobjects:JavaEOControl:5.4.3. Shade-merges the original jar with wopatches7:eocontrol-patches (which overrides EOCustomObject/EOGenericRecord/KeyValueCodingProtectedAccessor/_EOCheapCopyArray/_EOCheapCopyMutableArray/_EOIntegralKeyGlobalID), with explicit filters excluding the overridden classes from the original jar. Depends on the patched "wonder-foundation" artifact at runtime (not shaded in), mirroring JavaEOControl's own dependency on JavaFoundation.</description>
+
+	<!-- JavaEOControl and eocontrol-patches are fully shade-merged into this jar's output (see
+	     artifactSet/includes below), so they are marked optional=true to avoid leaking the original
+	     com.webobjects:JavaEOControl jar transitively to consumers (which would otherwise race
+	     against this self-contained jar for the same com.webobjects.eocontrol.* class names).
+	     foundation is a genuine runtime dependency (not shaded in), so it stays at compile scope. -->
+	<dependencies>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaEOControl</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>eocontrol-patches</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>wopatched</groupId>
+			<artifactId>wonder-foundation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<artifactSet>
+								<includes>
+									<include>com.webobjects:JavaEOControl</include>
+									<include>wopatches7:eocontrol-patches</include>
+								</includes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.webobjects:JavaEOControl</artifact>
+									<excludes>
+										<exclude>META-INF/INDEX.LIST</exclude>
+										<exclude>com/webobjects/eocontrol/EOCustomObject.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOCustomObject$_BooleanFieldBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOCustomObject$_FieldBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOCustomObject$_LazyFieldBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOCustomObject$_NumberFieldBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOGenericRecord.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOGenericRecord$_DictionaryBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/EOGenericRecord$_LazyDictionaryBinding.class</exclude>
+										<exclude>com/webobjects/eocontrol/_EOCheapCopyArray.class</exclude>
+										<exclude>com/webobjects/eocontrol/_EOCheapCopyMutableArray.class</exclude>
+										<exclude>com/webobjects/eocontrol/_EOIntegralKeyGlobalID.class</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>wopatches7</groupId>
+		<artifactId>wopatches7</artifactId>
+		<version>7.3.11</version>
+	</parent>
+	<artifactId>wojspservlet-patches</artifactId>
+
+	<name>WOJSPServlet Patches</name>
+	<description>Patched classes for com.webobjects.jspservlet, reconciled from Project Wonder and the WOCommunity wopatches project.</description>
+
+	<licenses>
+		<license>
+			<name>NetStruxr Public Software License</name>
+			<url>https://github.com/wocommunity/wonder/blob/master/Frameworks/Core/ERExtensions/Documentation/LICENSE.NPL</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Ricardo Parada</name>
+			<email>rparada@mac.com</email>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>foundation-patches</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>eocontrol-patches</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>wopatches7</groupId>
+			<artifactId>webobjects-patches</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaFoundation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaEOControl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaXML</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaWebObjects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.webobjects</groupId>
+			<artifactId>JavaWOJSPServlet</artifactId>
+		</dependency>
+	</dependencies>
+</project>
