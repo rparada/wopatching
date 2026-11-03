@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>wopatches7</groupId>
 		<artifactId>wopatches7</artifactId>
-		<version>7.3.11</version>
+		<version>1.0</version>
 	</parent>
 	<artifactId>foundation-patches</artifactId>
 
@@ -24,7 +24,16 @@
 		</developer>
 	</developers>
 
+	<!-- wonder.core:ERFoundation must come before com.webobjects:JavaFoundation on the compile
+	     classpath: both jars define com.webobjects.foundation.NSBundle, and this patch class
+	     needs the ERFoundation variant (with its additional package-private
+	     _normalizeExistingBundlePath/_lookupBundleWithPath/_cleanNormalizedBundlePath/
+	     _userAndBundleProperties/_bundleOrAppForName helper methods) to resolve at compile time. -->
 	<dependencies>
+		<dependency>
+			<groupId>wonder.core</groupId>
+			<artifactId>ERFoundation</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.webobjects</groupId>
 			<artifactId>JavaFoundation</artifactId>
