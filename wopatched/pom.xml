@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>wopatched</groupId>
 	<artifactId>wopatched</artifactId>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
 	<name>WebObjects Patched</name>
@@ -24,7 +24,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wopatches7.version>1.0</wopatches7.version>
+		<wopatches7.version>1.0.1</wopatches7.version>
 	</properties>
 
 	<modules>
