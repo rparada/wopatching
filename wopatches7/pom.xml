@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>wopatches7</groupId>
 	<artifactId>wopatches7</artifactId>
-	<version>7.3.11</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 
-	<name>WebObjects Patches for Wonder 7.3</name>
+	<name>WebObjects Patches</name>
 	<description>Patched classes for the core WebObjects dependencies, reconciled from Project Wonder and the WOCommunity wopatches project, for use as a non-JPMS classpath override (see wopatched).</description>
 
 	<licenses>
@@ -40,6 +40,11 @@
 				<groupId>com.webobjects</groupId>
 				<artifactId>JavaFoundation</artifactId>
 				<version>5.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>wonder.core</groupId>
+				<artifactId>ERFoundation</artifactId>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.webobjects</groupId>

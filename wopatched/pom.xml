@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>wopatched</groupId>
 	<artifactId>wopatched</artifactId>
-	<version>7.3.12</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 
-	<name>WebObjects Patched for Wonder 7.3</name>
+	<name>WebObjects Patched</name>
 	<description>Drop-in replacements for the core WebObjects SDK jars, produced by shade-merging the original com.webobjects:* 5.4.3 jars with wopatches7's override classes (and, for foundation/webobjects, the wonder.core:ERFoundation/ERWebObjects binary jars). No JPMS, no module-info - plain classpath override via maven-shade-plugin with explicit filters for deterministic precedence. This is the non-JPMS equivalent of womodular.</description>
 
 	<licenses>
@@ -24,7 +24,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wopatches7.version>7.3.11</wopatches7.version>
+		<wopatches7.version>1.0</wopatches7.version>
 	</properties>
 
 	<modules>

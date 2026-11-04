@@ -1,4 +1,4 @@
-# Wonder 7.3.11 and wopatching
+# Wonder 7.x and wopatching
 
 ## Overview
 
@@ -8,7 +8,7 @@ One of the longstanding challenges with using Wonder patches is that they rely o
 
 ```
 wopatching/
-├── wopatches7/        # patch modules (groupId: wopatches7) — built & installed to ~/.m2 first
+├── wopatches7/   # patch modules (groupId: wopatches7) — built & installed to ~/.m2 first
 │   ├── foundation-patches/
 │   ├── eocontrol-patches/
 │   ├── eoaccess-patches/
@@ -16,7 +16,7 @@ wopatching/
 │   ├── webobjects-patches/
 │   ├── wojspservlet-patches/
 │   └── directtoweb-patches/
-└── wopatched/         # drop-in SDK replacements (groupId: wopatched) — built second, consumes wopatches7
+└── wopatched/    # drop-in WO replacements (groupId: wopatched) — built 2nd, consumes wopatches7
     ├── wonder-foundation/
     ├── wonder-eocontrol/
     ├── wonder-eoaccess/
@@ -26,13 +26,19 @@ wopatching/
     └── wonder-directtoweb/
 ```
 
-Only `wopatched`'s artifacts are published to Artifactory; `wopatches7`'s artifacts are a build-time-only dependency, installed to `~/.m2/repository` by CI and consumed locally by `wopatched`.
+Only `wopatched`'s artifacts should be published; `wopatches7`'s artifacts are a build-time-only dependency, installed to `~/.m2/repository` and then consumed locally by `wopatched`.
 
-**wopatched** provides drop-in replacements for the original Apple WebObjects frameworks with commonly used Wonder patches, including fixes from **ERFoundation** and **ERWebObjects**, already integrated.
+**wopatched** provides drop-in replacements for the original Apple WebObjects frameworks, with commonly used Wonder patches and fixes from **ERFoundation** and **ERWebObjects** already integrated. It also includes a patched version of `NSStandardProjectBundle`, originally developed for wopatches7, which replaces the implementation shipped with ERFoundation. The purpose of this patch is to correctly distinguish between Maven and Fluffy Bunny project layouts. 
+
+**ERFoundation 1.0** relies on the retired Eclipse nature ID `org.maven.ide.eclipse.maven2Nature`, which modern Eclipse releases no longer write, causing all projects to be treated as Fluffy Bunny projects. 
+
+**ERFoundation 1.2** instead checks for `org.eclipse.m2e.core.maven2Nature`, which is present on nearly all m2e-managed projects, including traditional WebObjects projects that still use `Sources`, `Resources`, `Components`, and `WebServerResources`. As a result, those projects are incorrectly classified as Maven projects, causing resources such as `Info.plist` and `Properties` to be searched for under `src/main`, where they do not exist. Startup subsequently fails because `mainBundleName` cannot be resolved.
+
+The patched implementation determines the project type primarily from the project directory structure rather than the Eclipse nature ID. Projects containing a `Resources` directory together with `Components` or `WebServerResources` are treated as Fluffy Bunny projects. Projects containing `src/main/java`, `src/main/resources`, or `src/main/woresources` are treated as Maven projects. Only when neither layout is present does the code fall back to examining the Eclipse nature ID, recognizing both the retired `org.maven.ide.eclipse.maven2Nature` and the current `org.eclipse.m2e.core.maven2Nature`.
+
+The shaded `wonder-foundation` JAR included with **wopatched** uses this implementation.
 
 The generated artifacts by **wopatched** include: wonder-foundation, wonder-eocontrol, wonder-eoaccess, wonder-webobjects, wonder-jdbcadaptor, etc.
-
-The **wopatched** artifacts combine the original Apple frameworks with their corresponding patches from Wonder frameworks that provide additional functionality and fixes, such as ERFoundation and ERWebObjects.
 
 The patch modules are maintained in a separate project called **wopatches7**. This project consolidates patches that are currently distributed across several Wonder frameworks, primarily **ERExtensions**, but also frameworks such as **ERAttributeExtension**, into dedicated patch libraries: foundation-patches, eocontrol-patches, eoaccess-patches, webobjects-patches, jdbcadaptor-patches, etc.
 
@@ -44,7 +50,7 @@ This approach separates patch development from patch consumption.
 
 **Note:** In this process the ~~JavaXML~~ framework is eliminated.
 
-## Dropping `JavaXML` from `wopatched`/`wonder-7.3.11`
+## Dropping `JavaXML` from `wopatched`/`wonder-7.x`
 
 `com.webobjects:JavaXML` is a ~14 MB, 4,475-class commercial jar from 2005–2008 that embeds the entire legacy SOAP stack — Apache Axis 1.x, WSDL4J, Xalan, Xerces, BCEL, old Log4j 1.x, Commons Discovery, and a servlet/JSP API shim — none of which is needed for ordinary XML parsing, since `javax.xml.*`/`org.w3c.dom`/`org.xml.sax` have shipped natively in the JDK's `java.xml` module for years.
 
@@ -63,13 +69,13 @@ This matches the precedent already set by `wonder-modular-webobjects`.
 
 This is conceptually similar to how **Wonder 8** introduces **wopatches** and **womodular**.
 
-   - wonder 7.3.11 is analog to wonder8 (without java modules)
+   - wonder 7.3.11 (our fork) is analog to wonder8 (without java modules)
    - wopatched is analog to womodular (without java modules and without redesigned NSBundle stuff)
    - wopatches7 is analog to wopatches (without java modules)
 
 ## Methodology
 
-`wopatches` contains 59 Java source files across 7 Maven modules (`foundation-patches`, `eocontrol-patches`, `eoaccess-patches`, `jdbcadaptor-patches`, `webobjects-patches`, `wojspservlet-patches`, `directtoweb-patches`). Each file shadows a real `com.webobjects.*` class, and in many cases **wonder's own tree also carries an equivalent in-tree patch class** for the same purpose (wonder currently achieves its override via framework load order rather than a separate shaded jar). We went through all 59 files one by one, comparing the `wopatches` version against wonder's in-tree version (where one exists) to decide which to carry forward into `wopatches7`.
+`wopatches` contains 59 Java source files across 7 Maven modules (`foundation-patches`, `eocontrol-patches`, `eoaccess-patches`, `jdbcadaptor-patches`, `webobjects-patches`, `wojspservlet-patches`, `directtoweb-patches`). Each file shadows a real `com.webobjects.*` class, and in many cases **wonder's own tree also carries an equivalent in-tree patch class** for the same purpose (wonder currently achieves its override via framework load order rather than a separate shaded jar). All 59 files were reviewed one by one, comparing the `wopatches` version against wonder's in-tree version (where one exists) to decide which to carry forward into `wopatches7`.
 
 Each file fell into one of these buckets:
 
@@ -82,7 +88,7 @@ Each file fell into one of these buckets:
 
 ### Review process for "different" files
 
-For each of the 23 files with diverging content, we used a consistent investigative method:
+For each of the 23 files with diverging content, a consistent investigative method was used:
 
 1. Grep both versions for `^import er\.` — an upward dependency on a higher-level Wonder framework class (`er.extensions.*`, `er.directtoweb.*`) from a low-level foundation/webobjects-layer patch class is an architectural smell: these patch classes are meant to be loadable standalone, underneath Wonder, not dependent on it.
 2. Raw `diff`, then `diff -w -B` (ignoring whitespace/blank lines) to isolate the substantive differences from cosmetic ones.

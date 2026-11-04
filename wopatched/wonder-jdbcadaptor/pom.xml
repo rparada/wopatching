@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>wopatched</groupId>
 		<artifactId>wopatched</artifactId>
-		<version>7.3.12</version>
+		<version>1.0</version>
 	</parent>
 	<artifactId>wonder-jdbcadaptor</artifactId>
 	<packaging>jar</packaging>
@@ -58,6 +58,12 @@
 						</goals>
 						<configuration>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<!-- Generate one explicit manifest instead of arbitrarily keeping one of the several
+							     merged jars' own manifests (silences the shade-plugin "overlapping resource
+							     META-INF/MANIFEST.MF" warning). -->
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+							</transformers>
 							<artifactSet>
 								<includes>
 									<include>com.webobjects:JavaJDBCAdaptor</include>
@@ -65,6 +71,16 @@
 								</includes>
 							</artifactSet>
 							<filters>
+								<filter>
+									<!-- Every merged jar carries its own META-INF/MANIFEST.MF; exclude it from all of
+									     them here (the ManifestResourceTransformer above generates the single output
+									     one) so shade doesn't warn about an "overlapping resource" it's actually
+									     handling deterministically. -->
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/MANIFEST.MF</exclude>
+									</excludes>
+								</filter>
 								<filter>
 									<artifact>com.webobjects:JavaJDBCAdaptor</artifact>
 									<excludes>
