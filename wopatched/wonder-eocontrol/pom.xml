@@ -47,6 +47,12 @@
 						</goals>
 						<configuration>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<!-- Generate one explicit manifest instead of arbitrarily keeping one of the several
+							     merged jars' own manifests (silences the shade-plugin "overlapping resource
+							     META-INF/MANIFEST.MF" warning). -->
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+							</transformers>
 							<artifactSet>
 								<includes>
 									<include>com.webobjects:JavaEOControl</include>
@@ -54,6 +60,16 @@
 								</includes>
 							</artifactSet>
 							<filters>
+								<filter>
+									<!-- Every merged jar carries its own META-INF/MANIFEST.MF; exclude it from all of
+									     them here (the ManifestResourceTransformer above generates the single output
+									     one) so shade doesn't warn about an "overlapping resource" it's actually
+									     handling deterministically. -->
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/MANIFEST.MF</exclude>
+									</excludes>
+								</filter>
 								<filter>
 									<artifact>com.webobjects:JavaEOControl</artifact>
 									<excludes>
