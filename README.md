@@ -4,6 +4,15 @@
 
 One of the longstanding challenges with using Wonder patches is that they rely on **classpath ordering**. The frameworks containing patched classes must appear before the original Apple WebObjects frameworks on the classpath so that the patched implementations are loaded instead of the originals. This dependency ordering must be maintained consistently during development, testing, and production deployment, which can be difficult to manage and troubleshoot.
 
+### Highlights
+- WebObjects-compatible framework replacements
+- Includes commonly used patches and bug fixes
+- Eliminates classpath-ordering issues during both development and runtime
+- Removes JavaXML dependencies
+- Replaces use of proprietary JDK APIs (for example, sun.security) with supported public APIs
+
+### Project structure
+
 **wopatching** is an umbrella project hosting both **wopatched** and **wopatches7**:
 
 ```
