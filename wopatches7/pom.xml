@@ -93,6 +93,20 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<repositories>
+        <repository>
+            <id>wocommunity</id>
+            <name>WOCommunity Maven 2 Releases Repository</name>
+            <url>https://maven.wocommunity.org/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
 	<build>
 		<plugins>
 			<plugin>
